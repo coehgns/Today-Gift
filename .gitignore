@@ -5,6 +5,8 @@
 .env
 .env.*
 !.env.example
+backend/.env
+frontend/.env.local
 
 # OS / editor noise
 .DS_Store

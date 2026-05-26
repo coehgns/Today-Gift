@@ -1,0 +1,22 @@
+services:
+  mysql:
+    image: mysql:8.4
+    container_name: today-gift-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-today_gift}
+      MYSQL_USER: ${MYSQL_USER:-today_gift}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-today_gift}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-today_gift_root}
+    ports:
+      - "3307:3306"
+    volumes:
+      - today_gift_mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-u", "root", "-p${MYSQL_ROOT_PASSWORD:-today_gift_root}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  today_gift_mysql_data:
