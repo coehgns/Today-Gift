@@ -4,37 +4,40 @@
 
 ## 현재 상태 요약
 
-- 상태: not started
+- 상태: implemented
 - 마지막 업데이트: 2026-05-26
-- 현재/다음 권장 task: FE-00 Next.js 초기화
-- 주요 blocker: 없음
+- 현재/다음 권장 task: INT-03 전체 추천 플로우 smoke, INT-05 발표 데모 리허설
+- 주요 blocker: 실제 backend 연동 브라우저 smoke는 아직 필요
 
 ## 완료된 Client Tasks
 
 | Task ID | 상태 | 완료일 | 변경 파일 | 검증 | 메모 |
 |---|---|---:|---|---|---|
-| FE-00 | pending | - | - | - | Next.js 초기화 필요 |
-| FE-01 | pending | - | - | - | 공통 UI 컴포넌트 필요 |
-| FE-02 | pending | - | - | - | API client 필요 |
-| FE-03 | pending | - | - | - | 인증 UI/상태 필요 |
-| FE-04 | pending | - | - | - | 랜딩 페이지 필요 |
-| FE-05 | pending | - | - | - | 추천 시작 페이지 필요 |
-| FE-06 | pending | - | - | - | 입력 옵션 로딩 필요 |
-| FE-07 | pending | - | - | - | 단계형 입력 폼 필요 |
-| FE-08 | pending | - | - | - | 추천 생성 요청/로딩 필요 |
-| FE-09 | pending | - | - | - | 결과 상세 화면 필요 |
-| FE-10 | pending | - | - | - | 기록 목록/상세 필요 |
-| FE-11 | pending | - | - | - | 데모 polish 필요 |
+| FE-00 | completed | 2026-05-26 | `frontend/package.json`, `frontend/app/layout.tsx` | `npm run lint`, `npm run build` | Next.js App Router 초기화 |
+| FE-01 | completed | 2026-05-26 | `frontend/components/common/*`, `frontend/components/recommend/Option*.tsx` | `npm run lint`, `npm run build` | 공통 Button/Card/상태/선택 컴포넌트 작성 |
+| FE-02 | completed | 2026-05-26 | `frontend/lib/api.ts`, `frontend/types/*` | `npm run lint`, `npm run build` | API client, 타입, local fallback 구현 |
+| FE-03 | completed | 2026-05-26 | `frontend/components/auth/*`, `frontend/app/login/page.tsx` | `npm run lint`, `npm run build` | 로그인 UI/AuthGuard 구현 |
+| FE-04 | completed | 2026-05-26 | `frontend/app/page.tsx` | `npm run lint`, `npm run build` | 랜딩 페이지 구현 |
+| FE-05 | completed | 2026-05-26 | `frontend/app/recommend/start/page.tsx`, `frontend/components/recommend/RecommendStart.tsx` | `npm run lint`, `npm run build` | 추천 시작 안내 화면 구현 |
+| FE-06 | completed | 2026-05-26 | `frontend/lib/constants.ts`, `frontend/lib/api.ts` | `npm run lint`, `npm run build` | 입력 옵션 API 로딩/local fallback 구현 |
+| FE-07 | completed | 2026-05-26 | `frontend/app/recommend/form/page.tsx`, `frontend/components/recommend/*` | `npm run lint`, `npm run build` | 단계형 추천 입력 폼 구현 |
+| FE-08 | completed | 2026-05-26 | `frontend/components/recommend/LoadingRecommendation.tsx`, `frontend/lib/api.ts` | `npm run lint`, `npm run build` | 추천 생성 요청/로딩/fallback 구현 |
+| FE-09 | completed | 2026-05-26 | `frontend/app/recommend/result/[id]/page.tsx`, `frontend/components/result/*` | `npm run lint`, `npm run build` | 결과 상세/메시지 복사 UI 구현 |
+| FE-10 | completed | 2026-05-26 | `frontend/app/history/*`, `frontend/components/history/*` | `npm run lint`, `npm run build` | 기록 목록/상세 구현 |
+| FE-11 | completed | 2026-05-26 | `frontend/app/globals.css`, `frontend/components/layout/*` | `npm run lint`, `npm run build` | yellow gift theme, layout, responsive polish 적용 |
 
 ## 진행 로그
 
 ### 2026-05-26
 
-- Backend/Client 구현 계획이 분리됨.
-- 아직 클라이언트 소스 구현은 시작되지 않음.
+- 완료 task: FE-00 ~ FE-11
+- 변경 파일: `frontend/app/**`, `frontend/components/**`, `frontend/lib/**`, `frontend/types/**`, `frontend/package*.json`
+- 검증: `cd frontend && npm run lint` → passed
+- 검증: `cd frontend && npm run build` → passed, 8 app routes generated
+- 다음 권장 task: backend 실제 실행 상태에서 브라우저로 로그인/추천/기록 end-to-end smoke
 
 ## 다음 작업자를 위한 메모
 
-1. `docs/plans/today-gift-client-implementation-plan.md`에서 해당 FE task 세부 내용을 먼저 확인한다.
-2. 작업 완료 후 이 파일의 `현재 상태 요약`, `완료된 Client Tasks`, `진행 로그`를 업데이트한다.
+1. `frontend/.env.example`을 `frontend/.env.local`로 복사해 `NEXT_PUBLIC_API_BASE_URL`을 설정한다.
+2. `frontend/.env.local`은 commit 금지다.
 3. API 계약이 바뀌면 `docs/tasks/today-gift-task-breakdown.md`와 backend API 계획도 함께 업데이트한다.
