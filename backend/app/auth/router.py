@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+from typing import Optional
+from urllib.parse import urlencode
+
 from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
@@ -19,6 +22,16 @@ router = APIRouter(tags=["auth"])
 OAUTH_STATE_COOKIE = "today_gift_oauth_state"
 
 
+def _login_error_redirect(error: str, description: Optional[str] = None) -> RedirectResponse:
+    query = {"auth_error": error}
+    if description:
+        query["auth_error_description"] = description[:300]
+    url = f"{get_settings().frontend_url}/login?{urlencode(query)}"
+    response = RedirectResponse(url, status_code=status.HTTP_302_FOUND)
+    response.delete_cookie(OAUTH_STATE_COOKIE)
+    return response
+
+
 def _set_auth_cookie(response: Response, token: str) -> None:
     settings = get_settings()
     response.set_cookie(
@@ -33,6 +46,10 @@ def _set_auth_cookie(response: Response, token: str) -> None:
 
 @router.get("/auth/google/login")
 def google_login() -> RedirectResponse:
+    settings = get_settings()
+    if not settings.google_client_id:
+        return _login_error_redirect("google_not_configured")
+
     state = create_state_token()
     auth_url = build_google_authorization_url(state)
     response = RedirectResponse(auth_url, status_code=status.HTTP_302_FOUND)
@@ -50,13 +67,20 @@ def google_login() -> RedirectResponse:
 @router.get("/auth/google/callback")
 async def google_callback(
     request: Request,
-    code: str,
-    state: str,
+    code: Optional[str] = None,
+    state: Optional[str] = None,
+    error: Optional[str] = None,
+    error_description: Optional[str] = None,
     db: Session = Depends(get_db),
 ) -> RedirectResponse:
+    if error:
+        return _login_error_redirect(error, error_description)
+    if not code or not state:
+        return _login_error_redirect("missing_oauth_code")
+
     state_cookie = request.cookies.get(OAUTH_STATE_COOKIE)
     if not state_cookie or state_cookie != state:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid OAuth state")
+        return _login_error_redirect("invalid_oauth_state")
 
     userinfo = await exchange_google_code_for_userinfo(code)
     user = upsert_google_user(db, **userinfo)

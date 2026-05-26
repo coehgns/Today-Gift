@@ -285,6 +285,73 @@ export async function createRecommendation(values: RecommendationFormValues): Pr
   }
 }
 
+
+function getSampleRecommendation(id: string): RecommendationResult | null {
+  const base: RecommendationFormValues = {
+    relationship: "friend",
+    gender: "none",
+    ageGroup: "twenties",
+    mbti: "unknown",
+    personalities: ["sentimental"],
+    hobbies: ["photo"],
+    occasion: "birthday",
+    giftTone: "trendy",
+    budgetRange: "30000_50000",
+  };
+
+  const samples: Record<string, RecommendationResult> = {
+    "sample-birthday": {
+      id: "sample-birthday",
+      summary: "20대 친구의 생일을 위한 센스있는 선물 추천",
+      recipientLabel: "친구",
+      occasionLabel: "생일",
+      budgetLabel: "3~5만원",
+      giftToneLabel: "센스있는",
+      request: base,
+      createdAt: "2023-10-24T00:00:00.000Z",
+      source: "local-fallback",
+      emotionalMessage: "요즘 많이 바쁘고 힘들지? 이 향초 켜두고 잠시나마 푹 쉬었으면 좋겠어. 항상 응원하고 있어, 생일 축하해!",
+      items: [
+        {
+          id: "sample-candle",
+          name: "핸드메이드 향초 세트",
+          category: "향기/휴식",
+          priceRange: "3~5만원",
+          reason: "최근 스트레스가 많다고 했던 친구에게 따뜻한 위로가 될 수 있어요. 은은한 향이 마음을 편안하게 해주고, 인테리어 소품으로도 훌륭합니다.",
+          deliveryTip: "친구가 평소 좋아하는 향(우디, 플로럴 등)을 미리 알아두면 좋아요. 예쁜 성냥이나 캔들 워머를 함께 선물하면 센스가 돋보여요.",
+          message: "요즘 많이 바쁘고 힘들지? 이 향초 켜두고 잠시나마 푹 쉬었으면 좋겠어. 항상 응원하고 있어, 생일 축하해!",
+          tags: ["trendy", "sentimental", "homebody"],
+          confidenceLabel: "추천 1",
+        },
+        {
+          id: "sample-wallet",
+          name: "미니멀 가죽 카드지갑",
+          category: "패션소품",
+          priceRange: "3~5만원",
+          reason: "항상 카드를 주머니에 넣고 다니는 친구에게 꼭 필요한 실용적인 아이템이에요. 매일 사용하면서 선물한 사람을 떠올릴 수 있습니다.",
+          deliveryTip: "친구의 평소 옷차림에 잘 어울리는 무난한 색상(블랙, 브라운 등)을 추천해요. 이니셜 각인 서비스가 있다면 활용해보세요.",
+          message: "매일 들고 다니는 작은 물건도 너답게 깔끔했으면 해서 골랐어. 생일 축하해!",
+          tags: ["practical", "minimal", "daily"],
+          confidenceLabel: "추천 2",
+        },
+        {
+          id: "sample-polaroid",
+          name: "감성 폴라로이드 카메라",
+          category: "추억/취미",
+          priceRange: "10만원 이상",
+          reason: "사진 찍는 걸 좋아하는 친구에게 완벽한 선물이에요. 스마트폰 사진과는 다른 아날로그 감성으로 특별한 순간을 기록할 수 있습니다.",
+          deliveryTip: "필름 1~2팩을 꼭 함께 선물하세요. 바로 찍어볼 수 있게요. 선물 전달하는 날, 첫 장을 함께 찍어보세요.",
+          message: "우리 앞으로 더 많은 좋은 추억 남기자. 오늘 너의 가장 예쁜 모습부터 이 카메라에 담아줄게. 생일 정말 축하해!",
+          tags: ["special", "memory", "sentimental"],
+          confidenceLabel: "추천 3",
+        },
+      ],
+    },
+  };
+
+  return samples[id] ?? null;
+}
+
 export async function getRecommendation(id: string): Promise<RecommendationResult> {
   try {
     const raw = await apiRequest<unknown>(`/recommendations/${encodeURIComponent(id)}`);
@@ -292,6 +359,8 @@ export async function getRecommendation(id: string): Promise<RecommendationResul
     storeLocalResult(normalized);
     return normalized;
   } catch {
+    const sample = getSampleRecommendation(id);
+    if (sample) return sample;
     const local = getLocalResults().find((item) => item.id === id);
     if (local) return local;
     throw new ApiError("추천 결과를 찾을 수 없습니다.", 404);

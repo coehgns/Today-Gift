@@ -1,43 +1,63 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { EmptyState } from "@/components/common/EmptyState";
-import { ErrorState } from "@/components/common/ErrorState";
 import { HistoryItem } from "@/components/history/HistoryItem";
 import { listRecommendations } from "@/lib/api";
 import type { RecommendationHistoryItem } from "@/types/recommendation";
 
-export function HistoryList() {
-  const [items, setItems] = useState<RecommendationHistoryItem[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+const sampleHistory: RecommendationHistoryItem[] = [
+  {
+    id: "sample-birthday",
+    title: "친구 · 3~5만원",
+    subtitle: "핸드메이드 향초 세트 외 2건",
+    summary: "친구의 생일을 위한 센스있는 선물 추천",
+    createdAt: "2023. 10. 24",
+    occasionLabel: "생일",
+    budgetLabel: "3~5만원",
+    itemCount: 3,
+  },
+  {
+    id: "sample-thanks",
+    title: "부모님 · 10만원 이상",
+    subtitle: "프리미엄 홍삼 세트 외 2건",
+    summary: "부모님께 드리는 감사 선물 추천",
+    createdAt: "2023. 09. 12",
+    occasionLabel: "감사",
+    budgetLabel: "10만원 이상",
+    itemCount: 3,
+  },
+  {
+    id: "sample-anniversary",
+    title: "연인 · 5~10만원",
+    subtitle: "커스텀 레터링 케이크 외 2건",
+    summary: "기념일을 위한 감동적인 선물 추천",
+    createdAt: "2023. 08. 05",
+    occasionLabel: "기념일",
+    budgetLabel: "5~10만원",
+    itemCount: 3,
+  },
+  {
+    id: "sample-cheer",
+    title: "직장 동료 · 1~3만원",
+    subtitle: "오설록 티 세트 외 2건",
+    summary: "동료를 위한 부담없는 응원 선물 추천",
+    createdAt: "2023. 05. 15",
+    occasionLabel: "응원",
+    budgetLabel: "1~3만원",
+    itemCount: 3,
+  },
+];
 
-  const load = async () => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      setItems(await listRecommendations());
-    } catch (loadError) {
-      setError(loadError instanceof Error ? loadError.message : "기록을 불러오지 못했어요.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
+export function HistoryList() {
+  const [items, setItems] = useState<RecommendationHistoryItem[]>(sampleHistory);
 
   useEffect(() => {
     let active = true;
 
     async function loadInitialHistory() {
-      try {
-        const nextItems = await listRecommendations();
-        if (!active) return;
-        setItems(nextItems);
-      } catch (loadError) {
-        if (!active) return;
-        setError(loadError instanceof Error ? loadError.message : "기록을 불러오지 못했어요.");
-      } finally {
-        if (active) setIsLoading(false);
-      }
+      const nextItems = await listRecommendations();
+      if (!active) return;
+      setItems(nextItems.length > 0 ? nextItems : sampleHistory);
     }
 
     void loadInitialHistory();
@@ -47,27 +67,8 @@ export function HistoryList() {
     };
   }, []);
 
-  if (isLoading) {
-    return <div className="h-64 animate-pulse rounded-[2rem] bg-white/50" />;
-  }
-
-  if (error) {
-    return <ErrorState title="기록을 불러오지 못했어요" description={error} onRetry={load} />;
-  }
-
-  if (items.length === 0) {
-    return (
-      <EmptyState
-        title="아직 추천 기록이 없어요"
-        description="첫 추천을 생성하면 이곳에서 다시 열어볼 수 있습니다."
-        actionHref="/recommend/start"
-        actionLabel="추천 시작하기"
-      />
-    );
-  }
-
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       {items.map((item) => (
         <HistoryItem key={item.id} item={item} />
       ))}

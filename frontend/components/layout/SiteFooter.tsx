@@ -1,7 +1,13 @@
+import { GiftIcon } from "@/components/common/Icons";
+
 export function SiteFooter() {
   return (
-    <footer className="border-t border-gift-cocoa/10 py-10 text-center text-xs text-gift-cocoa/70">
-      <p>오늘의 선물 MVP · 서버 후보 기반 AI 선물 추천 데모</p>
+    <footer className="border-t border-gift-line bg-gift-cream py-9 text-center text-gift-muted">
+      <div className="flex items-center justify-center gap-2 text-[16px] font-bold text-gift-muted/70">
+        <GiftIcon className="size-4" />
+        <span>오늘의 선물</span>
+      </div>
+      <p className="mt-3 text-[14px] text-gift-muted/60">© 2026 오늘의 선물. All rights reserved.</p>
     </footer>
   );
 }

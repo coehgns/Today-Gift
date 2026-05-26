@@ -84,3 +84,14 @@ def test_recommendation_detail_is_user_scoped(client, db_session):
         headers={"Authorization": f"Bearer {other_token}"},
     )
     assert response.status_code == 404
+
+
+def test_google_callback_error_redirects_to_login(client):
+    response = client.get(
+        "/auth/google/callback?error=org_internal&error_description=organization%20only",
+        follow_redirects=False,
+    )
+    assert response.status_code == 302
+    location = response.headers["location"]
+    assert location.startswith("http://localhost:3000/login?")
+    assert "auth_error=org_internal" in location

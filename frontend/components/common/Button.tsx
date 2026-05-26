@@ -6,31 +6,26 @@ type ButtonVariant = "primary" | "secondary" | "ghost" | "danger";
 type ButtonSize = "sm" | "md" | "lg";
 
 const variantClasses: Record<ButtonVariant, string> = {
-  primary:
-    "border-gift-ink bg-gift-ink text-gift-cream shadow-[0_14px_30px_rgba(43,33,24,0.18)] hover:-translate-y-0.5 hover:bg-gift-cocoa",
-  secondary:
-    "border-gift-cocoa/20 bg-white/70 text-gift-ink shadow-[0_10px_24px_rgba(122,91,72,0.10)] hover:-translate-y-0.5 hover:border-gift-cocoa/40 hover:bg-white",
-  ghost: "border-transparent bg-transparent text-gift-cocoa hover:bg-gift-blush/40",
+  primary: "border-gift-yellow bg-gift-yellow text-gift-ink shadow-[0_12px_20px_rgba(245,185,46,0.22)] hover:bg-[#ffd545]",
+  secondary: "border-gift-line bg-white text-gift-ink shadow-[0_8px_18px_rgba(50,44,32,0.04)] hover:bg-gift-soft",
+  ghost: "border-transparent bg-transparent text-gift-muted hover:text-gift-ink",
   danger: "border-red-200 bg-red-50 text-red-700 hover:bg-red-100",
 };
 
 const sizeClasses: Record<ButtonSize, string> = {
-  sm: "h-9 px-4 text-sm",
-  md: "h-11 px-5 text-sm",
-  lg: "h-13 px-7 text-base",
+  sm: "h-11 px-6 text-[15px]",
+  md: "h-12 px-7 text-[17px]",
+  lg: "h-[72px] px-10 text-[21px]",
 };
 
-type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
-  variant?: ButtonVariant;
-  size?: ButtonSize;
-};
+type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & { variant?: ButtonVariant; size?: ButtonSize };
 
 export function Button({ className, variant = "primary", size = "md", type = "button", ...props }: ButtonProps) {
   return (
     <button
       type={type}
       className={cn(
-        "inline-flex items-center justify-center gap-2 rounded-full border font-semibold tracking-[-0.01em] transition duration-200 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-45",
+        "inline-flex items-center justify-center gap-3 rounded-full border font-bold transition duration-200 disabled:pointer-events-none disabled:opacity-45",
         variantClasses[variant],
         sizeClasses[size],
         className,
@@ -52,7 +47,7 @@ export function ButtonLink({ className, variant = "primary", size = "md", href, 
     <Link
       href={href}
       className={cn(
-        "inline-flex items-center justify-center gap-2 rounded-full border font-semibold tracking-[-0.01em] transition duration-200",
+        "inline-flex items-center justify-center gap-3 rounded-full border font-bold transition duration-200",
         variantClasses[variant],
         sizeClasses[size],
         className,

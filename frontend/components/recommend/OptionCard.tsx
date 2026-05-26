@@ -1,41 +1,34 @@
+import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
 export function OptionCard({
   label,
   description,
+  icon,
   selected,
   onSelect,
+  className,
 }: {
   label: string;
   description?: string;
+  icon?: ReactNode;
   selected: boolean;
   onSelect: () => void;
+  className?: string;
 }) {
   return (
     <button
       type="button"
       onClick={onSelect}
       className={cn(
-        "group min-h-30 rounded-[1.5rem] border p-5 text-left transition duration-200 hover:-translate-y-0.5 hover:shadow-[0_16px_36px_rgba(80,57,41,0.12)]",
-        selected
-          ? "border-gift-ink bg-gift-ink text-gift-cream"
-          : "border-gift-cocoa/12 bg-white/72 text-gift-ink hover:border-gift-clay/40",
+        "flex min-h-[136px] flex-col items-center justify-center rounded-[18px] border bg-white px-5 py-6 text-center transition hover:border-gift-yellow-2 hover:shadow-[0_10px_24px_rgba(39,39,39,0.05)]",
+        selected ? "border-gift-yellow bg-gift-soft text-gift-ink ring-2 ring-gift-yellow" : "border-gift-line text-gift-ink",
+        className,
       )}
     >
-      <span className="flex items-start justify-between gap-3">
-        <span className="font-display text-xl font-bold tracking-[-0.04em]">{label}</span>
-        <span
-          className={cn(
-            "grid size-6 shrink-0 place-items-center rounded-full border text-xs transition",
-            selected ? "border-gift-cream bg-gift-cream text-gift-ink" : "border-gift-cocoa/20 text-transparent group-hover:text-gift-cocoa",
-          )}
-        >
-          ✓
-        </span>
-      </span>
-      {description ? (
-        <span className={cn("mt-3 block text-sm leading-6", selected ? "text-gift-cream/72" : "text-gift-cocoa")}>{description}</span>
-      ) : null}
+      {icon ? <span className={cn("mb-4 text-gift-muted [&>svg]:size-8", selected && "text-gift-yellow-2")}>{icon}</span> : null}
+      <span className="text-[22px] font-black tracking-[-0.05em]">{label}</span>
+      {description ? <span className="mt-2 text-[16px] text-gift-muted">{description}</span> : null}
     </button>
   );
 }

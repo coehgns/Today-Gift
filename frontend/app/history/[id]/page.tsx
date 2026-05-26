@@ -1,4 +1,3 @@
-import { AuthGuard } from "@/components/auth/AuthGuard";
 import { RecommendationDetail } from "@/components/result/RecommendationDetail";
 
 type PageProps = {
@@ -7,9 +6,5 @@ type PageProps = {
 
 export default async function HistoryDetailPage({ params }: PageProps) {
   const { id } = await params;
-  return (
-    <AuthGuard>
-      <RecommendationDetail id={id} fromHistory />
-    </AuthGuard>
-  );
+  return <RecommendationDetail id={id} fromHistory />;
 }

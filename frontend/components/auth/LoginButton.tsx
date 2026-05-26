@@ -17,13 +17,26 @@ export function LoginButton({ mode = "google" }: { mode?: "google" | "demo" }) {
 
     setIsLoading(true);
     await loginAsDemoUser();
-    router.push("/recommend/start");
+    router.push("/recommend/form");
     router.refresh();
   };
 
+  if (mode === "google") {
+    return (
+      <button
+        type="button"
+        onClick={handleClick}
+        className="flex h-[72px] w-full items-center justify-center gap-5 rounded-full border border-gift-line bg-white text-[21px] font-black text-gift-ink shadow-[0_6px_14px_rgba(39,39,39,0.06)] transition hover:bg-gift-soft"
+      >
+        <span className="text-[26px] text-[#4285f4]">G</span>
+        Google로 계속하기
+      </button>
+    );
+  }
+
   return (
-    <Button onClick={handleClick} variant={mode === "google" ? "primary" : "secondary"} disabled={isLoading}>
-      {isLoading ? "로그인 중…" : mode === "google" ? "Google로 로그인" : "데모로 바로 시작"}
+    <Button onClick={handleClick} variant="secondary" disabled={isLoading} className="w-full">
+      {isLoading ? "로그인 중…" : "데모로 바로 시작"}
     </Button>
   );
 }

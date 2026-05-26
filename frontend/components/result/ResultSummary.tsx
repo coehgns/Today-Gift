@@ -1,28 +1,27 @@
-import { Card } from "@/components/common/Card";
+import { DEFAULT_GIFT_OPTIONS, findOptionLabel } from "@/lib/constants";
 import type { RecommendationResult } from "@/types/recommendation";
+
+export function buildResultTitle(result: RecommendationResult) {
+  const age = findOptionLabel(DEFAULT_GIFT_OPTIONS, "ageGroups", result.request.ageGroup);
+  const relation = result.recipientLabel || findOptionLabel(DEFAULT_GIFT_OPTIONS, "relationships", result.request.relationship);
+  const occasion = result.occasionLabel || findOptionLabel(DEFAULT_GIFT_OPTIONS, "occasions", result.request.occasion);
+  const tone = result.giftToneLabel || findOptionLabel(DEFAULT_GIFT_OPTIONS, "giftTones", result.request.giftTone);
+  const agePrefix = age && !age.includes("잘") ? `${age} ` : "";
+  return `${agePrefix}${relation}의 ${occasion}을 위한\n${tone} 선물 추천`;
+}
 
 export function ResultSummary({ result }: { result: RecommendationResult }) {
   return (
-    <Card className="relative overflow-hidden bg-gift-ink text-gift-cream">
-      <div className="absolute -right-16 -top-16 size-56 rounded-full bg-gift-gold/20 blur-3xl" />
-      <p className="text-xs font-black uppercase tracking-[0.24em] text-gift-gold">Recommendation ready</p>
-      <h1 className="mt-4 max-w-3xl font-display text-4xl font-black leading-tight tracking-[-0.06em] sm:text-6xl">
-        {result.summary}
-      </h1>
-      <div className="mt-7 grid gap-3 text-sm sm:grid-cols-3">
-        <div className="rounded-2xl border border-white/10 bg-white/8 p-4">
-          <span className="text-gift-cream/50">상황</span>
-          <strong className="mt-1 block text-gift-gold">{result.occasionLabel}</strong>
-        </div>
-        <div className="rounded-2xl border border-white/10 bg-white/8 p-4">
-          <span className="text-gift-cream/50">예산</span>
-          <strong className="mt-1 block text-gift-gold">{result.budgetLabel}</strong>
-        </div>
-        <div className="rounded-2xl border border-white/10 bg-white/8 p-4">
-          <span className="text-gift-cream/50">톤</span>
-          <strong className="mt-1 block text-gift-gold">{result.giftToneLabel}</strong>
-        </div>
+    <section className="bg-white px-5 pb-28 pt-12">
+      <div className="mx-auto max-w-[1080px]">
+        <a href="/recommend/form" className="inline-flex items-center gap-2 text-[19px] font-bold text-gift-muted transition hover:text-gift-ink">
+          ‹ 다시 추천받기
+        </a>
+        <h1 className="display-title mt-10 whitespace-pre-line text-[44px] font-black text-gift-ink md:text-[54px]">
+          {buildResultTitle(result)}
+        </h1>
+        <p className="mt-6 text-[22px] text-gift-muted">오늘의 선물이 정성껏 골라봤어요.</p>
       </div>
-    </Card>
+    </section>
   );
 }
