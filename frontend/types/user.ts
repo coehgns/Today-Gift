@@ -3,7 +3,7 @@ export type User = {
   email: string;
   name: string;
   profileImageUrl?: string | null;
-  provider?: "google" | "dev" | "demo";
+  provider?: string;
 };
 
 export type AuthStatus = "loading" | "authenticated" | "unauthenticated";

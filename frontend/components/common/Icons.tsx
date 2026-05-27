@@ -30,6 +30,76 @@ export function GiftIcon(props: SVGProps<SVGSVGElement>) {
   );
 }
 
+export function HeroGiftIcon({ className, ...props }: SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      viewBox="0 0 120 120"
+      fill="none"
+      className={className}
+      aria-hidden="true"
+      {...props}
+    >
+      <path
+        d="M27 48h66c5 0 9 4 9 9v39c0 7.2-5.8 13-13 13H31c-7.2 0-13-5.8-13-13V57c0-5 4-9 9-9Z"
+        fill="white"
+        stroke="currentColor"
+        strokeWidth="8"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M60 48v61"
+        stroke="currentColor"
+        strokeWidth="8"
+        strokeLinecap="round"
+      />
+      <path
+        d="M18 70h84"
+        stroke="currentColor"
+        strokeWidth="8"
+        strokeLinecap="round"
+      />
+      <path
+        d="M42 49v18"
+        stroke="currentColor"
+        strokeWidth="8"
+        strokeLinecap="round"
+      />
+      <path
+        d="M78 49v18"
+        stroke="currentColor"
+        strokeWidth="8"
+        strokeLinecap="round"
+      />
+      <path
+        d="M60 48c-13.8.5-28.8-1.5-33.5-8.5-6-8.9.2-18.2 10.5-16.2C48.5 25.6 55.6 39.1 60 48Z"
+        fill="#ffdc5a"
+        stroke="currentColor"
+        strokeWidth="8"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M60 48c13.8.5 28.8-1.5 33.5-8.5 6-8.9-.2-18.2-10.5-16.2C71.5 25.6 64.4 39.1 60 48Z"
+        fill="#ffdc5a"
+        stroke="currentColor"
+        strokeWidth="8"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+export function GitHubIcon({ className, ...props }: SVGProps<SVGSVGElement>) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" className={className} aria-hidden="true" {...props}>
+      <path
+        fillRule="evenodd"
+        clipRule="evenodd"
+        d="M12 .5A11.5 11.5 0 0 0 8.36 22.9c.58.11.79-.25.79-.56v-2.12c-3.23.7-3.91-1.38-3.91-1.38-.53-1.34-1.29-1.7-1.29-1.7-1.05-.72.08-.7.08-.7 1.17.08 1.78 1.2 1.78 1.2 1.03 1.77 2.71 1.26 3.37.96.1-.75.4-1.26.73-1.55-2.58-.29-5.29-1.29-5.29-5.74 0-1.27.45-2.31 1.2-3.12-.12-.29-.52-1.48.11-3.08 0 0 .98-.31 3.2 1.19A11.1 11.1 0 0 1 12 5.91c.98 0 1.97.13 2.9.39 2.2-1.5 3.18-1.19 3.18-1.19.64 1.6.24 2.79.12 3.08.75.81 1.2 1.85 1.2 3.12 0 4.46-2.72 5.44-5.3 5.73.42.36.79 1.07.79 2.16v3.2c0 .31.2.68.8.56A11.5 11.5 0 0 0 12 .5Z"
+      />
+    </svg>
+  );
+}
+
 export function SparkleIcon(props: SVGProps<SVGSVGElement>) {
   return (
     <Svg {...props}>

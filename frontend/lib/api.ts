@@ -191,6 +191,14 @@ function storeLocalResult(result: RecommendationResult) {
   window.localStorage.setItem(LOCAL_RESULTS_KEY, JSON.stringify(next));
 }
 
+function removeLocalResult(id: string) {
+  if (typeof window === "undefined") return false;
+  const current = getLocalResults();
+  const next = current.filter((item) => item.id !== id);
+  window.localStorage.setItem(LOCAL_RESULTS_KEY, JSON.stringify(next));
+  return next.length !== current.length;
+}
+
 function normalizeFormValues(raw: unknown): RecommendationFormValues {
   const record = recordFrom(raw);
   const budgetMin = record.budget_min ?? record.budgetMin;
@@ -396,6 +404,18 @@ export async function listRecommendations(): Promise<RecommendationHistoryItem[]
     return normalized.map(toHistoryItem);
   } catch {
     return getLocalResults().map(toHistoryItem);
+  }
+}
+
+export async function deleteRecommendation(id: string): Promise<void> {
+  try {
+    await apiRequest<unknown>(`/recommendations/${encodeURIComponent(id)}`, {
+      method: "DELETE",
+    });
+    removeLocalResult(id);
+  } catch (error) {
+    if (removeLocalResult(id)) return;
+    throw error;
   }
 }
 

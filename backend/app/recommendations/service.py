@@ -224,3 +224,12 @@ def get_recommendation_for_user(db: Session, user: User, result_id: int) -> Reco
     if result is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Recommendation not found")
     return result
+
+
+def delete_recommendation_for_user(db: Session, user: User, result_id: int) -> None:
+    result = get_recommendation_for_user(db, user, result_id)
+    request_row = result.request
+    db.delete(result)
+    db.flush()
+    db.delete(request_row)
+    db.commit()

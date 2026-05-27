@@ -23,9 +23,9 @@ export function AuthGuard({ children }: { children: ReactNode }) {
       <section className="mx-auto max-w-4xl px-5 py-20">
         <Card className="text-center">
           <p className="mb-3 text-xs font-bold uppercase tracking-[0.22em] text-gift-clay">Login required</p>
-          <h1 className="font-display text-4xl font-black tracking-[-0.05em] text-gift-ink">추천을 시작하려면 로그인이 필요해요</h1>
+          <h1 className="text-4xl font-black tracking-[-0.05em] text-gift-ink">추천을 시작하려면 로그인이 필요해요</h1>
           <p className="mx-auto mt-4 max-w-lg text-sm leading-6 text-gift-muted">
-            추천 결과와 기록은 사용자별로 저장됩니다. 백엔드 OAuth가 준비되지 않은 개발 환경에서는 데모 로그인으로 화면 흐름을 확인할 수 있어요.
+            추천 결과와 기록은 사용자별로 저장됩니다. Google 계정으로 로그인한 뒤 추천을 시작해 주세요.
           </p>
           <ButtonLink href="/login" className="mt-7">
             로그인하러 가기

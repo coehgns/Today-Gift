@@ -20,6 +20,17 @@ uvicorn app.main:app --reload
 pytest
 ```
 
+## Recommendation history deletion
+
+Authenticated users can delete only their own saved recommendation history:
+
+```bash
+curl -X DELETE http://localhost:8000/recommendations/{id} \
+  -H "Authorization: Bearer <token>"
+```
+
+The API deletes the `recommendation_results` row and its paired `recommendation_requests` row. Missing records or records owned by another user return `404`.
+
 ## Google OAuth notes
 
 If Google shows `403 org_internal`, the OAuth app is configured for internal organization users only. For personal Gmail testing, set the Google Cloud OAuth consent screen / Audience to External and add your Gmail address as a test user while the app is in Testing mode. Keep the authorized redirect URI identical to `GOOGLE_REDIRECT_URI` (default: `http://localhost:8000/auth/google/callback`).

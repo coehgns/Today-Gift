@@ -10,7 +10,28 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="ko" className="min-h-full antialiased" data-scroll-behavior="smooth">
+    <html lang="ko" className="min-h-full antialiased">
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function () {
+                if ("scrollRestoration" in window.history) {
+                  window.history.scrollRestoration = "manual";
+                }
+                var scrollHomeToTop = function () {
+                  if (window.location.pathname === "/") {
+                    window.scrollTo(0, 0);
+                  }
+                };
+                scrollHomeToTop();
+                window.addEventListener("pageshow", scrollHomeToTop);
+                window.addEventListener("load", scrollHomeToTop, { once: true });
+              })();
+            `,
+          }}
+        />
+      </head>
       <body className="min-h-full text-gift-ink">
         <div className="flex min-h-screen flex-col">
           <SiteHeader />

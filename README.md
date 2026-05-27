@@ -51,6 +51,7 @@ curl http://localhost:8000/health
 - `POST /recommendations`
 - `GET /recommendations`
 - `GET /recommendations/{id}`
+- `DELETE /recommendations/{id}`
 
 ## Google OAuth 403 `org_internal` 해결
 

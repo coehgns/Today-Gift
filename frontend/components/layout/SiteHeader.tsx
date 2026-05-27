@@ -18,7 +18,7 @@ export function SiteHeader() {
       <div className="mx-auto flex h-[88px] w-full max-w-[1536px] items-center justify-between px-6 md:px-12 lg:px-16">
         <Link href="/" className="flex items-center gap-3 text-gift-ink">
           <GiftIcon className="size-8 stroke-[2.5]" />
-          <span className="font-display text-[25px] font-black tracking-[-0.05em]">오늘의 선물</span>
+          <span className="font-sans text-[25px] font-black tracking-[-0.06em]">오늘의 선물</span>
         </Link>
 
         <nav className="flex items-center gap-6 text-[18px] font-bold text-gift-muted">

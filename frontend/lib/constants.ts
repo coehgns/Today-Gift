@@ -14,12 +14,12 @@ export const DEFAULT_GIFT_OPTIONS: GiftOptions = {
     { value: "parent", label: "가족", description: "정성과 실용성이 함께 필요한 관계" },
     { value: "coworker", label: "직장 동료", description: "센스 있고 부담 없는 선물이 필요한 관계" },
     { value: "teacher", label: "부모님", description: "감사와 배려를 담고 싶은 관계" },
-    { value: "unknown", label: "잘 모름", description: "정보가 부족해도 추천할 수 있어요" },
+    { value: "unknown", label: "모름", description: "정보가 부족해도 추천할 수 있어요" },
   ],
   genders: [
     { value: "female", label: "여성" },
     { value: "male", label: "남성" },
-    { value: "none", label: "상관없음" },
+    { value: "none", label: "모름" },
   ],
   ageGroups: [
     { value: "teens", label: "10대" },
@@ -27,7 +27,7 @@ export const DEFAULT_GIFT_OPTIONS: GiftOptions = {
     { value: "thirties", label: "30대" },
     { value: "forties", label: "40대" },
     { value: "fifties_plus", label: "50대 이상" },
-    { value: "unknown", label: "잘 모름" },
+    { value: "unknown", label: "모름" },
   ],
   mbtis: [
     { value: "ISTJ", label: "ISTJ" },
@@ -46,7 +46,7 @@ export const DEFAULT_GIFT_OPTIONS: GiftOptions = {
     { value: "ESFJ", label: "ESFJ" },
     { value: "ENFJ", label: "ENFJ" },
     { value: "ENTJ", label: "ENTJ" },
-    { value: "unknown", label: "잘 모름" },
+    { value: "unknown", label: "모름" },
   ],
   personalities: [
     { value: "calm", label: "차분한" },
@@ -333,7 +333,7 @@ export function buildRecommendationPayload(
     relationship: values.relationship,
     gender: values.gender,
     age_group: values.ageGroup,
-    mbti: values.mbti || "잘 모름",
+    mbti: values.mbti || "모름",
     personality,
     personalities: personality,
     hobbies,

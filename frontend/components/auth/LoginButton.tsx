@@ -1,42 +1,31 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { Button } from "@/components/common/Button";
-import { loginAsDemoUser, startGoogleLogin } from "@/lib/auth";
+import { startGoogleLogin } from "@/lib/auth";
 
-export function LoginButton({ mode = "google" }: { mode?: "google" | "demo" }) {
-  const router = useRouter();
-  const [isLoading, setIsLoading] = useState(false);
+function GoogleLogo() {
+  return (
+    <svg viewBox="0 0 48 48" aria-hidden="true" className="size-8 shrink-0">
+      <path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.1 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5Z" />
+      <path fill="#FF3D00" d="m6.3 14.7 6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.1 6.1 29.3 4 24 4 16.2 4 9.5 8.4 6.3 14.7Z" />
+      <path fill="#4CAF50" d="M24 44c5.2 0 10-2 13.5-5.2l-6.2-5.2C29.3 35.1 26.8 36 24 36c-5.2 0-9.6-3.3-11.3-7.9l-6.5 5C9.4 39.6 16.1 44 24 44Z" />
+      <path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.4-2.3 4.3-4.1 5.6l6.2 5.2C36.9 39.3 44 34 44 24c0-1.3-.1-2.4-.4-3.5Z" />
+    </svg>
+  );
+}
 
+export function LoginButton() {
   const handleClick = async () => {
-    if (mode === "google") {
-      startGoogleLogin();
-      return;
-    }
-
-    setIsLoading(true);
-    await loginAsDemoUser();
-    router.push("/recommend/form");
-    router.refresh();
+    startGoogleLogin();
   };
 
-  if (mode === "google") {
-    return (
-      <button
-        type="button"
-        onClick={handleClick}
-        className="flex h-[72px] w-full items-center justify-center gap-5 rounded-full border border-gift-line bg-white text-[21px] font-black text-gift-ink shadow-[0_6px_14px_rgba(39,39,39,0.06)] transition hover:bg-gift-soft"
-      >
-        <span className="text-[26px] text-[#4285f4]">G</span>
-        Google로 계속하기
-      </button>
-    );
-  }
-
   return (
-    <Button onClick={handleClick} variant="secondary" disabled={isLoading} className="w-full">
-      {isLoading ? "로그인 중…" : "데모로 바로 시작"}
-    </Button>
+    <button
+      type="button"
+      onClick={handleClick}
+      className="flex h-[74px] w-full items-center justify-center gap-6 rounded-full border border-gift-line bg-white text-[24px] font-semibold tracking-[-0.04em] text-gift-ink shadow-[0_8px_18px_rgba(39,39,39,0.05)] transition hover:-translate-y-0.5 hover:border-gift-yellow hover:shadow-[0_12px_24px_rgba(39,39,39,0.08)]"
+    >
+      <GoogleLogo />
+      <span>Google로 계속하기</span>
+    </button>
   );
 }

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from app.core.security import create_access_token
+from app.recommendations.models import RecommendationRequest, RecommendationResult
 from app.users.models import User
 
 
@@ -84,6 +85,55 @@ def test_recommendation_detail_is_user_scoped(client, db_session):
         headers={"Authorization": f"Bearer {other_token}"},
     )
     assert response.status_code == 404
+
+
+def test_recommendation_delete_requires_auth(client):
+    response = client.delete("/recommendations/1")
+    assert response.status_code == 401
+
+
+def test_recommendation_delete_removes_owned_result_and_request(client, db_session):
+    assert client.post("/auth/dev-login").status_code == 200
+    created = client.post("/recommendations", json=DEMO_REQUEST)
+    result_id = created.json()["id"]
+    request_id = db_session.get(RecommendationResult, result_id).request_id
+
+    deleted = client.delete(f"/recommendations/{result_id}")
+
+    assert deleted.status_code == 200
+    assert deleted.json() == {"message": "recommendation deleted"}
+    assert client.get(f"/recommendations/{result_id}").status_code == 404
+    assert client.get("/recommendations").json() == []
+    assert db_session.get(RecommendationResult, result_id) is None
+    assert db_session.get(RecommendationRequest, request_id) is None
+
+
+def test_recommendation_delete_is_user_scoped(client, db_session):
+    login = client.post("/auth/dev-login")
+    dev_token = login.json()["access_token"]
+    created = client.post("/recommendations", json=DEMO_REQUEST)
+    result_id = created.json()["id"]
+
+    other = User(google_sub="delete-other", email="delete-other@example.com", name="Other")
+    db_session.add(other)
+    db_session.commit()
+    db_session.refresh(other)
+    other_token = create_access_token(other.id)
+
+    client.cookies.clear()
+    response = client.delete(
+        f"/recommendations/{result_id}",
+        headers={"Authorization": f"Bearer {other_token}"},
+    )
+
+    assert response.status_code == 404
+    assert (
+        client.get(
+            f"/recommendations/{result_id}",
+            headers={"Authorization": f"Bearer {dev_token}"},
+        ).status_code
+        == 200
+    )
 
 
 def test_google_callback_error_redirects_to_login(client):

@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from app.auth.dependencies import get_current_user
+from app.auth.schemas import MessageResponse
 from app.db.session import get_db
 from app.recommendations.schemas import (
     RecommendationCreate,
@@ -13,6 +14,7 @@ from app.recommendations.schemas import (
 )
 from app.recommendations.service import (
     create_recommendation,
+    delete_recommendation_for_user,
     get_recommendation_for_user,
     list_recommendations,
     to_create_response,
@@ -50,3 +52,13 @@ def get_recommendation_endpoint(
 ) -> RecommendationDetailResponse:
     result = get_recommendation_for_user(db, current_user, result_id)
     return to_detail_response(result)
+
+
+@router.delete("/{result_id}", response_model=MessageResponse)
+def delete_recommendation_endpoint(
+    result_id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> MessageResponse:
+    delete_recommendation_for_user(db, current_user, result_id)
+    return MessageResponse(message="recommendation deleted")

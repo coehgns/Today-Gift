@@ -101,6 +101,90 @@ function ChipList({ items, selected, onToggle }: { items: OptionItem[]; selected
   );
 }
 
+function normalizeCustomText(value: string) {
+  return value.trim().replace(/\s+/g, " ");
+}
+
+function resolveCustomValue(items: OptionItem[], rawValue: string) {
+  const normalized = normalizeCustomText(rawValue);
+  if (!normalized) return "";
+  const existing = items.find((item) => item.value === normalized || item.label === normalized);
+  return existing?.value ?? normalized;
+}
+
+function CustomMultiChips({ selected, items, onRemove }: { selected: string[]; items: OptionItem[]; onRemove: (value: string) => void }) {
+  const knownValues = new Set(items.map((item) => item.value));
+  const customValues = selected.filter((value) => value && value !== "any" && !knownValues.has(value));
+
+  if (customValues.length === 0) return null;
+
+  return (
+    <div className="mt-3 flex flex-wrap gap-3">
+      {customValues.map((value) => (
+        <OptionChip key={value} label={value} selected onSelect={() => onRemove(value)} />
+      ))}
+    </div>
+  );
+}
+
+function CustomSingleChip({ value, items, onClear }: { value: string; items: OptionItem[]; onClear: () => void }) {
+  const isKnownValue = items.some((item) => item.value === value);
+  if (!value || isKnownValue) return null;
+
+  return (
+    <div className="mt-3 flex flex-wrap gap-3">
+      <OptionChip label={value} selected onSelect={onClear} />
+    </div>
+  );
+}
+
+function DirectOptionInput({
+  value,
+  onChange,
+  onSubmit,
+  placeholder,
+  buttonLabel = "추가",
+  ariaLabel,
+  disabled = false,
+}: {
+  value: string;
+  onChange: (value: string) => void;
+  onSubmit: () => void;
+  placeholder: string;
+  buttonLabel?: string;
+  ariaLabel?: string;
+  disabled?: boolean;
+}) {
+  const trimmed = normalizeCustomText(value);
+  return (
+    <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center">
+      <input
+        type="text"
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        onKeyDown={(event) => {
+          if (event.key === "Enter") {
+            event.preventDefault();
+            onSubmit();
+          }
+        }}
+        disabled={disabled}
+        placeholder={disabled ? "최대 3개까지 선택했어요" : placeholder}
+        className="min-h-[52px] flex-1 rounded-full border border-gift-line bg-white px-5 text-[17px] font-bold text-gift-ink outline-none transition placeholder:text-gift-muted/45 focus:border-gift-yellow-2 focus:ring-4 focus:ring-gift-yellow/20 disabled:bg-[#f7f2e6] disabled:text-gift-muted/50"
+      />
+      <button
+        type="button"
+        onClick={onSubmit}
+        aria-label={ariaLabel ?? buttonLabel}
+        disabled={!trimmed || disabled}
+        className="min-h-[52px] rounded-full border border-gift-line bg-gift-soft px-7 text-[17px] font-black text-gift-ink transition hover:border-gift-yellow-2 hover:bg-gift-yellow disabled:cursor-not-allowed disabled:bg-[#eee6cf] disabled:text-gift-muted/45"
+      >
+        {buttonLabel}
+      </button>
+    </div>
+  );
+}
+
 function FooterActions({ step, canGoNext, isSubmitting, onPrevious, onNext, onSubmit }: {
   step: number;
   canGoNext: boolean;
@@ -112,7 +196,12 @@ function FooterActions({ step, canGoNext, isSubmitting, onPrevious, onNext, onSu
   return (
     <div className="mt-12 border-t border-gift-line pt-8">
       <div className="flex items-center justify-between gap-6">
-        <button type="button" onClick={onPrevious} disabled={step === 0 || isSubmitting} className="text-[21px] font-bold text-gift-muted transition hover:text-gift-ink disabled:opacity-40">
+        <button
+          type="button"
+          onClick={onPrevious}
+          disabled={step === 0 || isSubmitting}
+          className="h-16 min-w-[140px] rounded-full border border-gift-line bg-white px-10 text-[22px] font-black text-gift-muted shadow-[0_8px_16px_rgba(39,39,39,0.04)] transition hover:border-gift-yellow-2 hover:text-gift-ink disabled:cursor-not-allowed disabled:bg-[#f7f2e6] disabled:text-gift-muted/35 disabled:shadow-none"
+        >
           이전
         </button>
         {step < 3 ? (
@@ -146,6 +235,12 @@ export function RecommendForm() {
   const [options, setOptions] = useState<GiftOptions>(DEFAULT_GIFT_OPTIONS);
   const [isLoadingOptions, setIsLoadingOptions] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [customInputs, setCustomInputs] = useState({
+    personality: "",
+    hobby: "",
+    occasion: "",
+    giftTone: "",
+  });
 
   useEffect(() => {
     let active = true;
@@ -182,6 +277,10 @@ export function RecommendForm() {
     setValues((current) => ({ ...current, [key]: value }));
   };
 
+  const setCustomInput = (key: keyof typeof customInputs, value: string) => {
+    setCustomInputs((current) => ({ ...current, [key]: value }));
+  };
+
   const toggleMulti = (key: "personalities" | "hobbies", value: string) => {
     setValues((current) => {
       const selected = current[key];
@@ -194,6 +293,25 @@ export function RecommendForm() {
           : [...withoutAny, value];
       return { ...current, [key]: next };
     });
+  };
+
+  const addCustomMulti = (key: "personalities" | "hobbies", inputKey: "personality" | "hobby", optionItems: OptionItem[]) => {
+    const nextValue = resolveCustomValue(optionItems, customInputs[inputKey]);
+    if (!nextValue) return;
+
+    setValues((current) => {
+      const selected = current[key].filter((item) => item !== "any" && !item.includes("상관"));
+      if (selected.includes(nextValue) || selected.length >= 3) return current;
+      return { ...current, [key]: [...selected, nextValue] };
+    });
+    setCustomInput(inputKey, "");
+  };
+
+  const applyCustomSingle = (key: "occasion" | "giftTone", inputKey: "occasion" | "giftTone", optionItems: OptionItem[]) => {
+    const nextValue = resolveCustomValue(optionItems, customInputs[inputKey]);
+    if (!nextValue) return;
+    setValue(key, nextValue);
+    setCustomInput(inputKey, "");
   };
 
   const canGoNext = useMemo(() => {
@@ -215,6 +333,11 @@ export function RecommendForm() {
     if (typeof window !== "undefined") window.localStorage.removeItem(DRAFT_KEY);
     router.push(`/recommend/result/${encodeURIComponent(result.id)}`);
   };
+
+  const personalityOptions = options.personalities.filter((item) => !item.label.includes("상관"));
+  const hobbyOptions = options.hobbies.filter((item) => !item.label.includes("상관") && !item.label.includes("모름"));
+  const occasionOptions = options.occasions.slice(0, 6);
+  const giftToneOptions = options.giftTones.slice(0, 4);
 
   if (isLoadingOptions) {
     return <LoadingRecommendation />;
@@ -262,17 +385,35 @@ export function RecommendForm() {
               {options.mbtis.filter((item) => !item.label.includes("모름")).map((item) => (
                 <OptionChip key={item.value} label={item.label} selected={values.mbti === item.value} onSelect={() => setValue("mbti", item.value)} className="w-full px-4" />
               ))}
-              <OptionChip label="잘 모름" selected={values.mbti === "unknown" || values.mbti === "잘 모름"} onSelect={() => setValue("mbti", options.mbtis.find((item) => item.label.includes("모름"))?.value ?? "unknown")} className="col-span-full w-full" />
+              <OptionChip label="모름" selected={values.mbti === "unknown" || values.mbti === "모름"} onSelect={() => setValue("mbti", options.mbtis.find((item) => item.label.includes("모름"))?.value ?? "unknown")} className="col-span-full w-full" />
             </div>
 
             <div className="mt-14">
               <QuestionTitle index={2} title="어떤 성격인가요?" helper="최대 3개" />
-              <ChipList items={options.personalities.filter((item) => !item.label.includes("상관"))} selected={values.personalities} onToggle={(value) => toggleMulti("personalities", value)} />
+              <ChipList items={personalityOptions} selected={values.personalities} onToggle={(value) => toggleMulti("personalities", value)} />
+              <CustomMultiChips selected={values.personalities} items={personalityOptions} onRemove={(value) => toggleMulti("personalities", value)} />
+              <DirectOptionInput
+                value={customInputs.personality}
+                onChange={(value) => setCustomInput("personality", value)}
+                onSubmit={() => addCustomMulti("personalities", "personality", personalityOptions)}
+                placeholder="직접 입력해보세요. 예: 다정한, 계획적인"
+                ariaLabel="성격 직접 입력 추가"
+                disabled={values.personalities.filter((value) => value !== "any").length >= 3}
+              />
             </div>
 
             <div className="mt-14">
               <QuestionTitle index={3} title="관심사나 취미가 있나요?" helper="최대 3개" />
-              <ChipList items={options.hobbies.filter((item) => !item.label.includes("상관") && !item.label.includes("모름"))} selected={values.hobbies} onToggle={(value) => toggleMulti("hobbies", value)} />
+              <ChipList items={hobbyOptions} selected={values.hobbies} onToggle={(value) => toggleMulti("hobbies", value)} />
+              <CustomMultiChips selected={values.hobbies} items={hobbyOptions} onRemove={(value) => toggleMulti("hobbies", value)} />
+              <DirectOptionInput
+                value={customInputs.hobby}
+                onChange={(value) => setCustomInput("hobby", value)}
+                onSubmit={() => addCustomMulti("hobbies", "hobby", hobbyOptions)}
+                placeholder="직접 입력해보세요. 예: 베이킹, 반려동물"
+                ariaLabel="관심사나 취미 직접 입력 추가"
+                disabled={values.hobbies.filter((value) => value !== "any").length >= 3}
+              />
             </div>
           </div>
         ) : null}
@@ -281,18 +422,36 @@ export function RecommendForm() {
           <div>
             <QuestionTitle index={1} title="어떤 상황인가요?" />
             <div className="grid gap-5 md:grid-cols-3">
-              {options.occasions.slice(0, 6).map((item) => (
+              {occasionOptions.map((item) => (
                 <OptionCard key={item.value} label={item.label} icon={occasionIcon(item.label)} selected={values.occasion === item.value} onSelect={() => setValue("occasion", item.value)} />
               ))}
             </div>
+            <CustomSingleChip value={values.occasion} items={occasionOptions} onClear={() => setValue("occasion", "")} />
+            <DirectOptionInput
+              value={customInputs.occasion}
+              onChange={(value) => setCustomInput("occasion", value)}
+              onSubmit={() => applyCustomSingle("occasion", "occasion", occasionOptions)}
+              placeholder="상황을 직접 입력해보세요. 예: 졸업, 집들이, 퇴사"
+              buttonLabel="적용"
+              ariaLabel="상황 직접 입력 적용"
+            />
 
             <div className="mt-14">
               <QuestionTitle index={2} title="어떤 느낌의 선물을 원하시나요?" />
               <div className="flex flex-wrap gap-3">
-                {options.giftTones.slice(0, 4).map((item) => (
+                {giftToneOptions.map((item) => (
                   <OptionChip key={item.value} label={item.label} selected={values.giftTone === item.value} onSelect={() => setValue("giftTone", item.value)} />
                 ))}
               </div>
+              <CustomSingleChip value={values.giftTone} items={giftToneOptions} onClear={() => setValue("giftTone", "")} />
+              <DirectOptionInput
+                value={customInputs.giftTone}
+                onChange={(value) => setCustomInput("giftTone", value)}
+                onSubmit={() => applyCustomSingle("giftTone", "giftTone", giftToneOptions)}
+                placeholder="원하는 느낌을 직접 입력해보세요. 예: 귀여운, 고급스러운"
+                buttonLabel="적용"
+                ariaLabel="선물 느낌 직접 입력 적용"
+              />
             </div>
           </div>
         ) : null}
