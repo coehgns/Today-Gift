@@ -26,6 +26,7 @@
 | FE-10 | completed | 2026-05-26 | `frontend/app/history/*`, `frontend/components/history/*` | `npm run lint`, `npm run build` | 기록 목록/상세 구현 |
 | FE-11 | completed | 2026-05-26 | `frontend/app/globals.css`, `frontend/components/layout/*` | `npm run lint`, `npm run build` | yellow gift theme, layout, responsive polish 적용 |
 | FE-12 | completed | 2026-06-02 | `frontend/lib/constants.ts`, `frontend/lib/api.ts` | `npm run lint`, `npm run build` | backend seed/filter와 payload 라벨 일치, 결과 문구 코드 노출 방지 |
+| FE-13 | completed | 2026-06-02 | `frontend/app/mypage/*`, `frontend/components/auth/AuthRedirectGuard.tsx`, `frontend/components/mypage/*` | `npm run lint`, `npm run build` | 인증 기반 랜딩 CTA, 보호 라우트, 계정/기록 마이페이지 |
 
 ## 진행 로그
 
@@ -37,6 +38,13 @@
 - 검증: `cd frontend && npm run build` → passed, 9 app routes generated
 - 다음 권장 task: FE-13 인증 기반 진입 흐름과 마이페이지
 - 남은 위험: 실제 backend 연결 상태에서 추천 생성 smoke 필요
+
+- 완료 task: FE-13 인증 기반 진입 흐름과 마이페이지
+- 변경 파일: `frontend/app/mypage/*`, `frontend/components/auth/AuthRedirectGuard.tsx`, `frontend/components/home/*`, `frontend/components/mypage/*`
+- 검증: `cd frontend && npm run lint` → passed
+- 검증: `cd frontend && npm run build` → passed, 9 app routes generated
+- 다음 권장 task: FE-14 추천 UI 밀도 개선
+- 남은 위험: 실제 Google OAuth callback 이후 마이페이지 진입 browser smoke 필요
 
 ### 2026-05-26
 
