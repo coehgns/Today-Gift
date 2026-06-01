@@ -57,6 +57,38 @@ function readStringArray(value: unknown): string[] {
   return value.map((item) => readString(item)).filter(Boolean);
 }
 
+const TEXT_LABEL_REPLACEMENTS: Record<string, string> = {
+  none: "모름",
+  unknown: "모름",
+  casual: "부담없는",
+};
+
+for (const option of [
+  ...DEFAULT_GIFT_OPTIONS.relationships,
+  ...DEFAULT_GIFT_OPTIONS.genders,
+  ...DEFAULT_GIFT_OPTIONS.ageGroups,
+  ...DEFAULT_GIFT_OPTIONS.personalities,
+  ...DEFAULT_GIFT_OPTIONS.hobbies,
+  ...DEFAULT_GIFT_OPTIONS.occasions,
+  ...DEFAULT_GIFT_OPTIONS.giftTones,
+  ...DEFAULT_GIFT_OPTIONS.budgetRanges,
+]) {
+  TEXT_LABEL_REPLACEMENTS[option.value] = option.label;
+}
+
+function replaceOptionCodes(value: string) {
+  let next = value;
+  for (const [code, label] of Object.entries(TEXT_LABEL_REPLACEMENTS)) {
+    if (!code || code === label) continue;
+    next = next.replace(new RegExp(`(^|[^A-Za-z0-9_])${escapeRegExp(code)}(?=$|[^A-Za-z0-9_])`, "g"), `$1${label}`);
+  }
+  return next;
+}
+
+function escapeRegExp(value: string) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
 function parseMaybeJson(value: unknown): unknown {
   if (typeof value !== "string") return value;
   try {
@@ -235,9 +267,9 @@ function normalizeItem(raw: unknown, index: number): GiftRecommendation | null {
     name,
     category: readString(record.category, "추천 선물"),
     priceRange: readString(record.priceRange ?? record.price_range ?? record.price, "예산 내"),
-    reason: readString(record.reason ?? record.recommendation_reason, "입력 조건과 잘 맞는 후보예요."),
-    deliveryTip: readString(record.deliveryTip ?? record.delivery_tip ?? record.tip, "짧은 손편지와 함께 전달해보세요."),
-    message: readString(record.message ?? record.emotional_message, "당신의 마음이 잘 전해지길 바라요."),
+    reason: replaceOptionCodes(readString(record.reason ?? record.recommendation_reason, "입력 조건과 잘 맞는 후보예요.")),
+    deliveryTip: replaceOptionCodes(readString(record.deliveryTip ?? record.delivery_tip ?? record.tip, "짧은 손편지와 함께 전달해보세요.")),
+    message: replaceOptionCodes(readString(record.message ?? record.emotional_message, "당신의 마음이 잘 전해지길 바라요.")),
     tags: readStringArray(record.tags).slice(0, 4),
     imageHint: readString(record.imageHint ?? record.image_hint) || undefined,
     confidenceLabel: readString(record.confidenceLabel ?? record.confidence_label) || undefined,
@@ -360,13 +392,19 @@ function getSampleRecommendation(id: string): RecommendationResult | null {
   return samples[id] ?? null;
 }
 
-export async function getRecommendation(id: string): Promise<RecommendationResult> {
+export async function getRecommendation(
+  id: string,
+  { allowLocalFallback = true }: { allowLocalFallback?: boolean } = {},
+): Promise<RecommendationResult> {
   try {
     const raw = await apiRequest<unknown>(`/recommendations/${encodeURIComponent(id)}`);
     const normalized = normalizeRecommendation(raw);
     storeLocalResult(normalized);
     return normalized;
-  } catch {
+  } catch (error) {
+    if (!allowLocalFallback) {
+      throw error;
+    }
     const sample = getSampleRecommendation(id);
     if (sample) return sample;
     const local = getLocalResults().find((item) => item.id === id);
@@ -380,19 +418,32 @@ function normalizeHistoryItem(raw: unknown): RecommendationHistoryItem | null {
   const id = readString(record.id);
   if (!id) return null;
 
+  const relationship = readString(record.relationship, "추천 대상");
+  const occasion = readString(record.occasion, "상황");
+  const budgetRange = readString(record.budget_range ?? record.budgetRange, "예산");
+  const relationshipLabel = findOptionLabel(DEFAULT_GIFT_OPTIONS, "relationships", relationship);
+  const occasionLabel = findOptionLabel(DEFAULT_GIFT_OPTIONS, "occasions", occasion);
+  const budgetLabel = formatBudgetLabel(budgetRange);
+
   return {
     id,
-    title: `${readString(record.relationship, "추천 대상")} · ${readString(record.occasion, "상황")}`,
+    title: `${relationshipLabel} · ${budgetLabel}`,
     subtitle: readString(record.representative_gift_name, "추천 결과"),
     summary: readString(record.summary, "추천 결과를 확인해보세요."),
     createdAt: readString(record.created_at ?? record.createdAt, new Date().toISOString()),
-    occasionLabel: readString(record.occasion, "상황"),
-    budgetLabel: readString(record.budget_range ?? record.budgetRange, "예산"),
+    occasionLabel,
+    budgetLabel,
     itemCount: 3,
   };
 }
 
-export async function listRecommendations(): Promise<RecommendationHistoryItem[]> {
+function formatBudgetLabel(value: string) {
+  if (!value) return "예산";
+  const matched = DEFAULT_GIFT_OPTIONS.budgetRanges.find((item) => item.value === value || item.label === value);
+  return matched?.label ?? value;
+}
+
+export async function listRecommendations({ allowLocalFallback = true }: { allowLocalFallback?: boolean } = {}): Promise<RecommendationHistoryItem[]> {
   try {
     const raw = await apiRequest<unknown>("/recommendations");
     const items = arrayFrom(recordFrom(raw).items ?? raw);
@@ -402,19 +453,20 @@ export async function listRecommendations(): Promise<RecommendationHistoryItem[]
     const normalized = items.map((item) => normalizeRecommendation(item));
     normalized.forEach(storeLocalResult);
     return normalized.map(toHistoryItem);
-  } catch {
-    return getLocalResults().map(toHistoryItem);
+  } catch (error) {
+    if (allowLocalFallback) return getLocalResults().map(toHistoryItem);
+    throw error;
   }
 }
 
-export async function deleteRecommendation(id: string): Promise<void> {
+export async function deleteRecommendation(id: string, { allowLocalFallback = true }: { allowLocalFallback?: boolean } = {}): Promise<void> {
   try {
     await apiRequest<unknown>(`/recommendations/${encodeURIComponent(id)}`, {
       method: "DELETE",
     });
     removeLocalResult(id);
   } catch (error) {
-    if (removeLocalResult(id)) return;
+    if (allowLocalFallback && removeLocalResult(id)) return;
     throw error;
   }
 }
@@ -423,7 +475,7 @@ export function toHistoryItem(result: RecommendationResult): RecommendationHisto
   const firstItem = result.items[0]?.name ?? "추천 결과";
   return {
     id: result.id,
-    title: `${result.recipientLabel} · ${result.occasionLabel}`,
+    title: `${result.recipientLabel} · ${result.budgetLabel}`,
     subtitle: firstItem,
     summary: result.summary,
     createdAt: result.createdAt,

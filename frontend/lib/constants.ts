@@ -325,23 +325,24 @@ export function buildRecommendationPayload(
   options = DEFAULT_GIFT_OPTIONS,
 ): RecommendationRequestPayload {
   const budget = getBudgetOption(values.budgetRange, options);
+  const toLabel = (group: keyof GiftOptions, value: string) => findOptionLabel(options, group, value);
 
-  const personality = values.personalities.filter((value) => value !== "any");
-  const hobbies = values.hobbies.filter((value) => value !== "any");
+  const personality = values.personalities.filter((value) => value !== "any").map((value) => toLabel("personalities", value));
+  const hobbies = values.hobbies.filter((value) => value !== "any").map((value) => toLabel("hobbies", value));
 
   return {
-    relationship: values.relationship,
-    gender: values.gender,
-    age_group: values.ageGroup,
-    mbti: values.mbti || "모름",
+    relationship: toLabel("relationships", values.relationship),
+    gender: toLabel("genders", values.gender),
+    age_group: toLabel("ageGroups", values.ageGroup),
+    mbti: values.mbti ? toLabel("mbtis", values.mbti) : "모름",
     personality,
     personalities: personality,
     hobbies,
     budget_range: budget.label,
     budget_min: budget.min,
     budget_max: budget.max,
-    occasion: values.occasion,
-    gift_tone: values.giftTone,
+    occasion: toLabel("occasions", values.occasion),
+    gift_tone: toLabel("giftTones", values.giftTone),
   };
 }
 

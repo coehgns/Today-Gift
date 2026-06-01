@@ -50,6 +50,7 @@
 | FE-09 | 결과 상세 화면 | FE-01, FE-02, BE-12 | 결과 카드/복사 |
 | FE-10 | 기록 목록/상세 | FE-09, BE-12 | history 화면 |
 | FE-11 | Client polish | FE-10 | 데모 가능한 UI |
+| FE-12 | 추천 API 라벨 정규화 | FE-02, BE-05, BE-06 | backend seed/filter와 일치하는 한국어 라벨 payload |
 
 ## Integration Tasks
 
