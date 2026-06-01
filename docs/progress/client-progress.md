@@ -27,6 +27,7 @@
 | FE-11 | completed | 2026-05-26 | `frontend/app/globals.css`, `frontend/components/layout/*` | `npm run lint`, `npm run build` | yellow gift theme, layout, responsive polish 적용 |
 | FE-12 | completed | 2026-06-02 | `frontend/lib/constants.ts`, `frontend/lib/api.ts` | `npm run lint`, `npm run build` | backend seed/filter와 payload 라벨 일치, 결과 문구 코드 노출 방지 |
 | FE-13 | completed | 2026-06-02 | `frontend/app/mypage/*`, `frontend/components/auth/AuthRedirectGuard.tsx`, `frontend/components/mypage/*` | `npm run lint`, `npm run build` | 인증 기반 랜딩 CTA, 보호 라우트, 계정/기록 마이페이지 |
+| FE-14 | completed | 2026-06-02 | `frontend/components/recommend/*`, `frontend/components/result/ResultCard.tsx` | `npm run lint`, `npm run build` | 보호된 compact 입력 흐름, 선택지 직접 입력, 결과 카드 밀도 개선 |
 
 ## 진행 로그
 
@@ -45,6 +46,13 @@
 - 검증: `cd frontend && npm run build` → passed, 9 app routes generated
 - 다음 권장 task: FE-14 추천 UI 밀도 개선
 - 남은 위험: 실제 Google OAuth callback 이후 마이페이지 진입 browser smoke 필요
+
+- 완료 task: FE-14 추천 UI 밀도 개선
+- 변경 파일: `frontend/components/recommend/*`, `frontend/components/result/ResultCard.tsx`, `frontend/app/login/page.tsx`
+- 검증: `cd frontend && npm run lint` → passed
+- 검증: `cd frontend && npm run build` → passed, 9 app routes generated
+- 다음 권장 task: FE-15 추천 기록 관리
+- 남은 위험: 직접 입력 선택지를 포함한 실제 추천 생성 browser smoke 필요
 
 ### 2026-05-26
 

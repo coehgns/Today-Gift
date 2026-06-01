@@ -24,11 +24,11 @@ export function InputSummary({ values, options = DEFAULT_GIFT_OPTIONS }: { value
   ];
 
   return (
-    <div className="rounded-[22px] border border-gift-line bg-gift-cream px-8 py-7">
-      <h3 className="text-center text-[22px] font-black tracking-[-0.05em] text-gift-ink">입력 내용을 확인해주세요</h3>
-      <dl className="mt-7 divide-y divide-gift-line/70">
+    <div className="rounded-[18px] border border-gift-line bg-gift-cream px-6 py-5">
+      <h3 className="text-center text-[17px] font-black tracking-[-0.05em] text-gift-ink">입력 내용을 확인해주세요</h3>
+      <dl className="mt-5 divide-y divide-gift-line/70">
         {rows.map(([label, value]) => (
-          <div key={label} className="flex items-center justify-between gap-8 py-4 text-[18px]">
+          <div key={label} className="flex items-center justify-between gap-6 py-3 text-[15px]">
             <dt className="text-gift-muted">{label}</dt>
             <dd className="text-right font-bold text-gift-ink">{value}</dd>
           </div>

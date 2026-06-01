@@ -4,7 +4,7 @@ import { startGoogleLogin } from "@/lib/auth";
 
 function GoogleLogo() {
   return (
-    <svg viewBox="0 0 48 48" aria-hidden="true" className="size-8 shrink-0">
+    <svg viewBox="0 0 48 48" aria-hidden="true" className="size-6 shrink-0">
       <path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.1 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5Z" />
       <path fill="#FF3D00" d="m6.3 14.7 6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.1 6.1 29.3 4 24 4 16.2 4 9.5 8.4 6.3 14.7Z" />
       <path fill="#4CAF50" d="M24 44c5.2 0 10-2 13.5-5.2l-6.2-5.2C29.3 35.1 26.8 36 24 36c-5.2 0-9.6-3.3-11.3-7.9l-6.5 5C9.4 39.6 16.1 44 24 44Z" />
@@ -22,7 +22,7 @@ export function LoginButton() {
     <button
       type="button"
       onClick={handleClick}
-      className="flex h-[74px] w-full items-center justify-center gap-6 rounded-full border border-gift-line bg-white text-[24px] font-semibold tracking-[-0.04em] text-gift-ink shadow-[0_8px_18px_rgba(39,39,39,0.05)] transition hover:-translate-y-0.5 hover:border-gift-yellow hover:shadow-[0_12px_24px_rgba(39,39,39,0.08)]"
+      className="flex h-[56px] w-full items-center justify-center gap-4 rounded-full border border-gift-line bg-white text-[18px] font-semibold tracking-[-0.04em] text-gift-ink shadow-[0_8px_18px_rgba(39,39,39,0.05)] transition hover:-translate-y-0.5 hover:border-gift-yellow hover:shadow-[0_12px_24px_rgba(39,39,39,0.08)]"
     >
       <GoogleLogo />
       <span>Google로 계속하기</span>

@@ -32,23 +32,23 @@ export default async function LoginPage({ searchParams }: { searchParams?: Login
   const authErrorMessage = getAuthErrorMessage(authError, authErrorDescription);
 
   return (
-    <section className="flex min-h-[calc(100vh-88px)] items-start justify-center bg-gift-cream px-5 pb-20 pt-36">
-      <div className="soft-shell w-full max-w-[620px] rounded-[36px] px-12 py-12 text-center">
-        <div className="mx-auto flex size-[88px] items-center justify-center rounded-[22px] bg-gift-soft text-gift-yellow-2 shadow-[0_8px_18px_rgba(39,39,39,0.08)]">
-          <GiftIcon className="size-10 stroke-[2.3]" />
+    <section className="flex min-h-[calc(100vh-70px)] items-start justify-center bg-gift-cream px-5 pb-14 pt-24">
+      <div className="soft-shell w-full max-w-[480px] rounded-[26px] px-8 py-9 text-center">
+        <div className="mx-auto flex size-[62px] items-center justify-center rounded-[16px] bg-gift-soft text-gift-yellow-2 shadow-[0_8px_18px_rgba(39,39,39,0.08)]">
+          <GiftIcon className="size-8 stroke-[2.3]" />
         </div>
-        <h1 className="mt-10 text-[34px] font-black tracking-[-0.055em] text-gift-ink">시작하기 전에 잠깐만요</h1>
-        <p className="mt-5 text-[19px] leading-8 text-gift-muted">추천 결과를 저장하고 나중에 다시 확인할 수 있어요.</p>
-        <div className="mx-auto mt-10 max-w-[520px]">
+        <h1 className="mt-7 text-[26px] font-black tracking-[-0.055em] text-gift-ink">시작하기 전에 잠깐만요</h1>
+        <p className="mt-3 text-[15px] leading-7 text-gift-muted">추천 결과를 저장하고 나중에 다시 확인할 수 있어요.</p>
+        <div className="mx-auto mt-7 max-w-[400px]">
           <LoginButton />
         </div>
         {authErrorMessage ? (
-          <div className="mx-auto mt-6 rounded-[24px] border border-red-100 bg-red-50 px-6 py-4 text-left text-[15px] leading-7 text-red-700">
+          <div className="mx-auto mt-5 rounded-[20px] border border-red-100 bg-red-50 px-5 py-4 text-left text-[14px] leading-7 text-red-700">
             <p className="font-black">Google 로그인 설정을 확인해 주세요</p>
             <p className="mt-2">{authErrorMessage}</p>
           </div>
         ) : null}
-        <p className="mt-8 text-[15px] text-gift-muted/55">로그인 시 서비스 이용약관과 개인정보처리방침에 동의하게 됩니다.</p>
+        <p className="mt-6 text-[13px] text-gift-muted/55">로그인 시 서비스 이용약관과 개인정보처리방침에 동의하게 됩니다.</p>
       </div>
     </section>
   );

@@ -13,9 +13,9 @@ const variantClasses: Record<ButtonVariant, string> = {
 };
 
 const sizeClasses: Record<ButtonSize, string> = {
-  sm: "h-11 px-6 text-[15px]",
-  md: "h-12 px-7 text-[17px]",
-  lg: "h-[72px] px-10 text-[21px]",
+  sm: "h-9 px-4 text-[13px]",
+  md: "h-10 px-5 text-[15px]",
+  lg: "h-[54px] px-7 text-[17px]",
 };
 
 type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & { variant?: ButtonVariant; size?: ButtonSize };

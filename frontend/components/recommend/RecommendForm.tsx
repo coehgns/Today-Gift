@@ -9,6 +9,7 @@ import {
   GiftIcon,
   HeartIcon,
   HomeIcon,
+  PencilIcon,
   QuestionIcon,
   SmileIcon,
   SparkleIcon,
@@ -20,6 +21,7 @@ import { LoadingRecommendation } from "@/components/recommend/LoadingRecommendat
 import { OptionCard } from "@/components/recommend/OptionCard";
 import { OptionChip } from "@/components/recommend/OptionChip";
 import { DEFAULT_GIFT_OPTIONS, EMPTY_RECOMMENDATION_FORM } from "@/lib/constants";
+import { useCurrentUser } from "@/lib/auth";
 import { createRecommendation, getGiftOptions } from "@/lib/api";
 import type { GiftOptions, OptionItem, RecommendationFormValues } from "@/types/recommendation";
 
@@ -38,12 +40,12 @@ function readDraft(): RecommendationFormValues {
 
 function QuestionTitle({ index, title, helper }: { index: number; title: string; helper?: string }) {
   return (
-    <div className="mb-7 flex items-center justify-between gap-6">
-      <div className="flex items-center gap-4">
-        <span className="grid size-9 place-items-center rounded-full bg-gift-soft text-[20px] font-black text-gift-yellow-2">{index}</span>
-        <h2 className="text-[25px] font-black tracking-[-0.05em] text-gift-ink">{title}</h2>
+    <div className="mb-5 flex items-center justify-between gap-4">
+      <div className="flex items-center gap-3">
+        <span className="grid size-7 place-items-center rounded-full bg-gift-soft text-[16px] font-black text-gift-yellow-2">{index}</span>
+        <h2 className="text-[20px] font-black tracking-[-0.05em] text-gift-ink">{title}</h2>
       </div>
-      {helper ? <span className="text-[16px] font-bold text-gift-muted/60">{helper}</span> : null}
+      {helper ? <span className="text-[13px] font-bold text-gift-muted/60">{helper}</span> : null}
     </div>
   );
 }
@@ -51,18 +53,18 @@ function QuestionTitle({ index, title, helper }: { index: number; title: string;
 function StepChrome({ step }: { step: number }) {
   const width = `${((step + 1) / stepTitles.length) * 100}%`;
   return (
-    <div className="mx-auto mb-10 max-w-[1080px] px-3 text-center">
+    <div className="mx-auto mb-7 max-w-[900px] px-3 text-center">
       {step > 0 ? (
-        <div className="mb-10 inline-flex items-center gap-2 rounded-full bg-gift-soft px-4 py-2 text-[16px] font-black text-gift-yellow-2">
+        <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-gift-soft px-3.5 py-1.5 text-[13px] font-black text-gift-yellow-2">
           <ClockIcon className="size-4" />
           60초면 완료됩니다
         </div>
       ) : null}
-      <div className="mb-4 text-[20px] font-black tracking-[-0.04em] text-gift-muted">
+      <div className="mb-3 text-[16px] font-black tracking-[-0.04em] text-gift-muted">
         Step {step + 1} / 4 <span className="mx-4 text-gift-line">|</span>
         <span className="text-gift-ink">{stepTitles[step]}</span>
       </div>
-      <div className="h-2.5 overflow-hidden rounded-full bg-[#eee9d8]">
+      <div className="h-2 overflow-hidden rounded-full bg-[#eee9d8]">
         <div className="h-full rounded-full bg-gift-yellow transition-all duration-300" style={{ width }} />
       </div>
     </div>
@@ -88,14 +90,38 @@ function occasionIcon(label: string) {
 }
 
 function CardShell({ children }: { children: React.ReactNode }) {
-  return <div className="soft-shell mx-auto max-w-[1080px] rounded-[32px] px-9 py-11 md:px-12 md:py-12">{children}</div>;
+  return <div className="soft-shell mx-auto max-w-[900px] rounded-[24px] px-6 py-8 md:px-8 md:py-9">{children}</div>;
 }
 
-function ChipList({ items, selected, onToggle }: { items: OptionItem[]; selected: string[]; onToggle: (value: string) => void }) {
+function getCustomValues(selected: string[], items: OptionItem[]) {
+  const knownValues = new Set(items.map((item) => item.value));
+  return selected.filter((value) => value && value !== "any" && !knownValues.has(value));
+}
+
+function isCustomValue(value: string, items: OptionItem[]) {
+  return Boolean(value) && !items.some((item) => item.value === value);
+}
+
+function ChipList({
+  items,
+  selected,
+  onToggle,
+  includeCustom = false,
+}: {
+  items: OptionItem[];
+  selected: string[];
+  onToggle: (value: string) => void;
+  includeCustom?: boolean;
+}) {
+  const customValues = includeCustom ? getCustomValues(selected, items) : [];
+
   return (
-    <div className="flex flex-wrap gap-3">
+    <div className="flex flex-wrap gap-2.5">
       {items.map((item) => (
         <OptionChip key={item.value} label={item.label} selected={selected.includes(item.value)} onSelect={() => onToggle(item.value)} />
+      ))}
+      {customValues.map((value) => (
+        <OptionChip key={value} label={value} selected onSelect={() => onToggle(value)} />
       ))}
     </div>
   );
@@ -112,28 +138,13 @@ function resolveCustomValue(items: OptionItem[], rawValue: string) {
   return existing?.value ?? normalized;
 }
 
-function CustomMultiChips({ selected, items, onRemove }: { selected: string[]; items: OptionItem[]; onRemove: (value: string) => void }) {
-  const knownValues = new Set(items.map((item) => item.value));
-  const customValues = selected.filter((value) => value && value !== "any" && !knownValues.has(value));
-
-  if (customValues.length === 0) return null;
-
+function SingleChipList({ items, selected, onSelect }: { items: OptionItem[]; selected: string; onSelect: (value: string) => void }) {
   return (
-    <div className="mt-3 flex flex-wrap gap-3">
-      {customValues.map((value) => (
-        <OptionChip key={value} label={value} selected onSelect={() => onRemove(value)} />
+    <div className="flex flex-wrap gap-2.5">
+      {items.map((item) => (
+        <OptionChip key={item.value} label={item.label} selected={selected === item.value} onSelect={() => onSelect(item.value)} />
       ))}
-    </div>
-  );
-}
-
-function CustomSingleChip({ value, items, onClear }: { value: string; items: OptionItem[]; onClear: () => void }) {
-  const isKnownValue = items.some((item) => item.value === value);
-  if (!value || isKnownValue) return null;
-
-  return (
-    <div className="mt-3 flex flex-wrap gap-3">
-      <OptionChip label={value} selected onSelect={onClear} />
+      {isCustomValue(selected, items) ? <OptionChip label={selected} selected onSelect={() => onSelect("")} /> : null}
     </div>
   );
 }
@@ -157,7 +168,7 @@ function DirectOptionInput({
 }) {
   const trimmed = normalizeCustomText(value);
   return (
-    <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center">
+    <div className="mt-4 flex flex-col gap-2.5 sm:flex-row sm:items-center">
       <input
         type="text"
         value={value}
@@ -170,14 +181,14 @@ function DirectOptionInput({
         }}
         disabled={disabled}
         placeholder={disabled ? "최대 3개까지 선택했어요" : placeholder}
-        className="min-h-[52px] flex-1 rounded-full border border-gift-line bg-white px-5 text-[17px] font-bold text-gift-ink outline-none transition placeholder:text-gift-muted/45 focus:border-gift-yellow-2 focus:ring-4 focus:ring-gift-yellow/20 disabled:bg-[#f7f2e6] disabled:text-gift-muted/50"
+        className="min-h-[42px] flex-1 rounded-full border border-gift-line bg-white px-4 text-[14px] font-bold text-gift-ink outline-none transition placeholder:text-gift-muted/45 focus:border-gift-yellow-2 focus:ring-4 focus:ring-gift-yellow/20 disabled:bg-[#f7f2e6] disabled:text-gift-muted/50"
       />
       <button
         type="button"
         onClick={onSubmit}
         aria-label={ariaLabel ?? buttonLabel}
         disabled={!trimmed || disabled}
-        className="min-h-[52px] rounded-full border border-gift-line bg-gift-soft px-7 text-[17px] font-black text-gift-ink transition hover:border-gift-yellow-2 hover:bg-gift-yellow disabled:cursor-not-allowed disabled:bg-[#eee6cf] disabled:text-gift-muted/45"
+        className="min-h-[42px] rounded-full border border-gift-line bg-gift-soft px-5 text-[14px] font-black text-gift-ink transition hover:border-gift-yellow-2 hover:bg-gift-yellow disabled:cursor-not-allowed disabled:bg-[#eee6cf] disabled:text-gift-muted/45"
       >
         {buttonLabel}
       </button>
@@ -194,13 +205,13 @@ function FooterActions({ step, canGoNext, isSubmitting, onPrevious, onNext, onSu
   onSubmit: () => void;
 }) {
   return (
-    <div className="mt-12 border-t border-gift-line pt-8">
-      <div className="flex items-center justify-between gap-6">
+    <div className="mt-8 border-t border-gift-line pt-6">
+      <div className="flex items-center justify-between gap-5">
         <button
           type="button"
           onClick={onPrevious}
           disabled={step === 0 || isSubmitting}
-          className="h-16 min-w-[140px] rounded-full border border-gift-line bg-white px-10 text-[22px] font-black text-gift-muted shadow-[0_8px_16px_rgba(39,39,39,0.04)] transition hover:border-gift-yellow-2 hover:text-gift-ink disabled:cursor-not-allowed disabled:bg-[#f7f2e6] disabled:text-gift-muted/35 disabled:shadow-none"
+          className="h-[46px] min-w-[108px] rounded-full border border-gift-line bg-white px-6 text-[16px] font-black text-gift-muted shadow-[0_8px_16px_rgba(39,39,39,0.04)] transition hover:border-gift-yellow-2 hover:text-gift-ink disabled:cursor-not-allowed disabled:bg-[#f7f2e6] disabled:text-gift-muted/35 disabled:shadow-none"
         >
           이전
         </button>
@@ -209,7 +220,7 @@ function FooterActions({ step, canGoNext, isSubmitting, onPrevious, onNext, onSu
             type="button"
             onClick={onNext}
             disabled={!canGoNext || isSubmitting}
-            className="h-16 min-w-[165px] rounded-full bg-gift-yellow px-10 text-[22px] font-black text-gift-ink shadow-[0_10px_18px_rgba(245,185,46,0.18)] transition hover:bg-[#ffd545] disabled:bg-[#eee6cf] disabled:text-gift-muted/50"
+            className="h-[46px] min-w-[124px] rounded-full bg-gift-yellow px-6 text-[16px] font-black text-gift-ink shadow-[0_10px_18px_rgba(245,185,46,0.18)] transition hover:bg-[#ffd545] disabled:bg-[#eee6cf] disabled:text-gift-muted/50"
           >
             다음
           </button>
@@ -218,7 +229,7 @@ function FooterActions({ step, canGoNext, isSubmitting, onPrevious, onNext, onSu
             type="button"
             onClick={onSubmit}
             disabled={!canGoNext || isSubmitting}
-            className="h-16 min-w-[185px] rounded-full bg-gift-yellow px-10 text-[22px] font-black text-gift-ink shadow-[0_10px_18px_rgba(245,185,46,0.18)] transition hover:bg-[#ffd545] disabled:bg-[#eee6cf] disabled:text-gift-muted/50"
+            className="h-[46px] min-w-[144px] rounded-full bg-gift-yellow px-6 text-[16px] font-black text-gift-ink shadow-[0_10px_18px_rgba(245,185,46,0.18)] transition hover:bg-[#ffd545] disabled:bg-[#eee6cf] disabled:text-gift-muted/50"
           >
             추천 받기
           </button>
@@ -230,6 +241,7 @@ function FooterActions({ step, canGoNext, isSubmitting, onPrevious, onNext, onSu
 
 export function RecommendForm() {
   const router = useRouter();
+  const { user, status: authStatus } = useCurrentUser();
   const [step, setStep] = useState(0);
   const [values, setValues] = useState<RecommendationFormValues>(() => readDraft());
   const [options, setOptions] = useState<GiftOptions>(DEFAULT_GIFT_OPTIONS);
@@ -262,6 +274,12 @@ export function RecommendForm() {
       active = false;
     };
   }, []);
+
+  useEffect(() => {
+    if (authStatus === "unauthenticated") {
+      router.replace("/login");
+    }
+  }, [authStatus, router]);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -339,12 +357,12 @@ export function RecommendForm() {
   const occasionOptions = options.occasions.slice(0, 6);
   const giftToneOptions = options.giftTones.slice(0, 4);
 
-  if (isLoadingOptions) {
+  if (authStatus === "loading" || authStatus === "unauthenticated" || !user || isLoadingOptions) {
     return <LoadingRecommendation />;
   }
 
   return (
-    <section className="min-h-[calc(100vh-88px)] bg-gift-cream px-5 py-7">
+    <section className="min-h-[calc(100vh-70px)] bg-gift-cream px-5 py-5">
       {isSubmitting ? <LoadingRecommendation /> : null}
       <StepChrome step={step} />
 
@@ -352,24 +370,24 @@ export function RecommendForm() {
         {step === 0 ? (
           <div>
             <QuestionTitle index={1} title="어떤 관계인가요?" />
-            <div className="grid gap-5 md:grid-cols-3">
+            <div className="grid gap-4 md:grid-cols-3">
               {options.relationships.slice(0, 6).map((item) => (
                 <OptionCard key={item.value} label={item.label} icon={relationIcon(item.label)} selected={values.relationship === item.value} onSelect={() => setValue("relationship", item.value)} />
               ))}
             </div>
 
-            <div className="mt-12">
+            <div className="mt-8">
               <QuestionTitle index={2} title="성별은 어떻게 되나요?" />
-              <div className="flex flex-wrap gap-3">
+              <div className="flex flex-wrap gap-2.5">
                 {options.genders.map((item) => (
                   <OptionChip key={item.value} label={item.label} selected={values.gender === item.value} onSelect={() => setValue("gender", item.value)} />
                 ))}
               </div>
             </div>
 
-            <div className="mt-12">
+            <div className="mt-8">
               <QuestionTitle index={3} title="연령대는 어떻게 되나요?" />
-              <div className="flex flex-wrap gap-3">
+              <div className="flex flex-wrap gap-2.5">
                 {options.ageGroups.map((item) => (
                   <OptionChip key={item.value} label={item.label} selected={values.ageGroup === item.value} onSelect={() => setValue("ageGroup", item.value)} />
                 ))}
@@ -381,17 +399,16 @@ export function RecommendForm() {
         {step === 1 ? (
           <div>
             <QuestionTitle index={1} title="MBTI를 아시나요?" helper="선택사항" />
-            <div className="grid gap-3 md:grid-cols-4 lg:grid-cols-8">
+            <div className="grid gap-2.5 md:grid-cols-4 lg:grid-cols-8">
               {options.mbtis.filter((item) => !item.label.includes("모름")).map((item) => (
                 <OptionChip key={item.value} label={item.label} selected={values.mbti === item.value} onSelect={() => setValue("mbti", item.value)} className="w-full px-4" />
               ))}
               <OptionChip label="모름" selected={values.mbti === "unknown" || values.mbti === "모름"} onSelect={() => setValue("mbti", options.mbtis.find((item) => item.label.includes("모름"))?.value ?? "unknown")} className="col-span-full w-full" />
             </div>
 
-            <div className="mt-14">
+            <div className="mt-10">
               <QuestionTitle index={2} title="어떤 성격인가요?" helper="최대 3개" />
-              <ChipList items={personalityOptions} selected={values.personalities} onToggle={(value) => toggleMulti("personalities", value)} />
-              <CustomMultiChips selected={values.personalities} items={personalityOptions} onRemove={(value) => toggleMulti("personalities", value)} />
+              <ChipList items={personalityOptions} selected={values.personalities} onToggle={(value) => toggleMulti("personalities", value)} includeCustom />
               <DirectOptionInput
                 value={customInputs.personality}
                 onChange={(value) => setCustomInput("personality", value)}
@@ -402,10 +419,9 @@ export function RecommendForm() {
               />
             </div>
 
-            <div className="mt-14">
+            <div className="mt-10">
               <QuestionTitle index={3} title="관심사나 취미가 있나요?" helper="최대 3개" />
-              <ChipList items={hobbyOptions} selected={values.hobbies} onToggle={(value) => toggleMulti("hobbies", value)} />
-              <CustomMultiChips selected={values.hobbies} items={hobbyOptions} onRemove={(value) => toggleMulti("hobbies", value)} />
+              <ChipList items={hobbyOptions} selected={values.hobbies} onToggle={(value) => toggleMulti("hobbies", value)} includeCustom />
               <DirectOptionInput
                 value={customInputs.hobby}
                 onChange={(value) => setCustomInput("hobby", value)}
@@ -421,12 +437,14 @@ export function RecommendForm() {
         {step === 2 ? (
           <div>
             <QuestionTitle index={1} title="어떤 상황인가요?" />
-            <div className="grid gap-5 md:grid-cols-3">
+            <div className="grid gap-4 md:grid-cols-3">
               {occasionOptions.map((item) => (
                 <OptionCard key={item.value} label={item.label} icon={occasionIcon(item.label)} selected={values.occasion === item.value} onSelect={() => setValue("occasion", item.value)} />
               ))}
+              {isCustomValue(values.occasion, occasionOptions) ? (
+                <OptionCard label={values.occasion} icon={<PencilIcon className="size-10" />} selected onSelect={() => setValue("occasion", "")} />
+              ) : null}
             </div>
-            <CustomSingleChip value={values.occasion} items={occasionOptions} onClear={() => setValue("occasion", "")} />
             <DirectOptionInput
               value={customInputs.occasion}
               onChange={(value) => setCustomInput("occasion", value)}
@@ -436,14 +454,9 @@ export function RecommendForm() {
               ariaLabel="상황 직접 입력 적용"
             />
 
-            <div className="mt-14">
+            <div className="mt-10">
               <QuestionTitle index={2} title="어떤 느낌의 선물을 원하시나요?" />
-              <div className="flex flex-wrap gap-3">
-                {giftToneOptions.map((item) => (
-                  <OptionChip key={item.value} label={item.label} selected={values.giftTone === item.value} onSelect={() => setValue("giftTone", item.value)} />
-                ))}
-              </div>
-              <CustomSingleChip value={values.giftTone} items={giftToneOptions} onClear={() => setValue("giftTone", "")} />
+              <SingleChipList items={giftToneOptions} selected={values.giftTone} onSelect={(value) => setValue("giftTone", value)} />
               <DirectOptionInput
                 value={customInputs.giftTone}
                 onChange={(value) => setCustomInput("giftTone", value)}
@@ -459,20 +472,20 @@ export function RecommendForm() {
         {step === 3 ? (
           <div>
             <QuestionTitle index={1} title="예산은 어느 정도인가요?" />
-            <div className="space-y-4">
+            <div className="space-y-3">
               {options.budgetRanges.slice(0, 5).map((item) => (
                 <button
                   key={item.value}
                   type="button"
                   onClick={() => setValue("budgetRange", item.value)}
-                  className={`min-h-[104px] w-full rounded-[18px] border bg-white px-6 py-6 text-center transition hover:border-gift-yellow-2 ${values.budgetRange === item.value ? "border-gift-yellow bg-gift-soft ring-2 ring-gift-yellow" : "border-gift-line"}`}
+                  className={`min-h-[76px] w-full rounded-[14px] border bg-white px-5 py-4 text-center transition hover:border-gift-yellow-2 ${values.budgetRange === item.value ? "border-gift-yellow bg-gift-soft ring-2 ring-gift-yellow" : "border-gift-line"}`}
                 >
-                  <span className="block text-[23px] font-black tracking-[-0.05em] text-gift-ink">{item.label}</span>
-                  <span className="mt-2 block text-[16px] font-bold text-gift-muted/55">{item.description ?? item.display}</span>
+                  <span className="block text-[18px] font-black tracking-[-0.05em] text-gift-ink">{item.label}</span>
+                  <span className="mt-1.5 block text-[13px] font-bold text-gift-muted/55">{item.description ?? item.display}</span>
                 </button>
               ))}
             </div>
-            <div className="mt-12">
+            <div className="mt-9">
               <InputSummary values={values} options={options} />
             </div>
           </div>
