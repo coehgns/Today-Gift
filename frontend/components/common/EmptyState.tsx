@@ -8,17 +8,17 @@ export function EmptyState({
   actionLabel,
 }: {
   title: string;
-  description: string;
+  description?: string;
   actionHref?: string;
   actionLabel?: string;
 }) {
   return (
-    <Card className="mx-auto max-w-xl text-center">
-      <div className="mx-auto mb-5 flex size-14 items-center justify-center rounded-full bg-gift-soft text-2xl">✉️</div>
-      <h2 className="font-display text-3xl font-bold tracking-[-0.04em] text-gift-ink">{title}</h2>
-      <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-gift-muted">{description}</p>
+    <Card className="mx-auto flex min-h-[240px] max-w-[760px] flex-col items-center justify-center px-6 py-10 text-center md:min-h-[280px] md:px-12 md:py-12">
+      <div className="mx-auto mb-6 flex size-14 items-center justify-center rounded-full bg-gift-soft text-2xl md:size-16">✉️</div>
+      <h2 className="font-display text-[25px] font-black tracking-[-0.05em] text-gift-ink md:text-[32px]">{title}</h2>
+      {description ? <p className="mx-auto mt-3 max-w-lg text-[15px] leading-7 text-gift-muted">{description}</p> : null}
       {actionHref && actionLabel ? (
-        <ButtonLink href={actionHref} className="mt-7">
+        <ButtonLink href={actionHref} size="lg" className="mt-7 min-w-[170px]">
           {actionLabel}
         </ButtonLink>
       ) : null}
