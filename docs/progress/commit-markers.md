@@ -5,3 +5,4 @@ checkpoint 04: 2026-06-25 commit marker
 checkpoint 05: 2026-06-25 commit marker
 checkpoint 06: 2026-06-25 commit marker
 checkpoint 07: 2026-06-25 commit marker
+checkpoint 08: 2026-06-25 commit marker
