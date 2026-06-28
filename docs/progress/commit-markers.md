@@ -38,3 +38,4 @@ checkpoint 37: 2026-06-28 commit marker
 checkpoint 38: 2026-06-28 commit marker
 checkpoint 39: 2026-06-28 commit marker
 checkpoint 40: 2026-06-28 commit marker
+checkpoint 41: 2026-06-29 commit marker
